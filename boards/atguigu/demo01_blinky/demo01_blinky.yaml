@@ -1,0 +1,10 @@
+identifier: demo01_blinky/nrf52840
+name: demo01_blinky test
+vendor: atguigu
+type: mcu
+arch: arm
+ram: 256
+flash: 1024
+toolchain:
+  - zephyr
+supported: []

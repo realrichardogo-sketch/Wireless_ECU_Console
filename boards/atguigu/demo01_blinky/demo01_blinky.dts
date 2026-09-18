@@ -1,0 +1,201 @@
+/dts-v1/;
+#include <nordic/nrf52840_qiaa.dtsi>
+#include "demo01_blinky-pinctrl.dtsi"
+#include <zephyr/dt-bindings/mipi_dbi/mipi_dbi.h>
+#include <zephyr/dt-bindings/pwm/pwm.h>
+#include <zephyr/dt-bindings/led/led.h>
+
+/ {
+	model = "demo01_blinky test";
+	compatible = "atguigu,demo01-blinky";
+
+	chosen {
+		zephyr,sram = &sram0;
+		zephyr,flash = &flash0;
+		zephyr,code-partition = &slot0_partition;
+		zephyr,display = &screen_lcd;
+		zephyr,led-strip = &led_strip;
+	};
+
+	// LED
+	aliases {
+		led0 = &myled0;
+		qdec0 = &qdec;
+		backlight = &backlight;
+		led-strip = &led_strip;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+
+		// GPIO 1.02 拉低有效
+		// myled0: label标签
+		myled0: led_0 {
+			gpios = <&gpio1 2 GPIO_ACTIVE_LOW>;
+		};
+
+  	};
+		pwm_leds {
+		compatible = "pwm-leds";
+		status = "okay";
+
+		backlight: pwm_led_0 {
+			pwms = <&pwm0 0 PWM_MSEC(10)
+				PWM_POLARITY_INVERTED>;
+		};
+	};
+
+	mipi_dbi_screen: mipi_dbi_screen {
+		compatible = "zephyr,mipi-dbi-spi";
+		spi-dev = <&spi3>;
+		dc-gpios = <&gpio0 3 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&gpio1 10 GPIO_ACTIVE_LOW>;
+		write-only;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		screen_lcd: st7789v@0 {
+			compatible = "sitronix,st7789v";
+			status = "okay";
+			reg = <0>;
+			mipi-max-frequency = <32000000>;
+
+			width = <320>;
+			height = <172>;
+			x-offset = <0>;
+			y-offset = <34>;
+
+			vcom = <0x34>;
+			gctrl = <0x00>;
+			mdac = <0xA0>;
+			gamma = <0x01>;
+			colmod = <0x05>;
+			lcm = <0x2c>;
+
+			porch-param = [0c 0c 00 33 33];
+			cmd2en-param = [5a 69 02 01];
+			pwctrl1-param = [a4 a1];
+			pvgam-param =
+				[f0 04 08 0a 0a 05 25 33
+				 3c 24 0e 0f 27 2f];
+			nvgam-param =
+				[f0 02 06 06 04 22 25 32
+				 3b 3a 15 17 2d 37];
+			ram-param = [00 f0];
+			rgb-param = [cd 08 14];
+
+			ready-time-ms = <120>;
+			mipi-mode = "MIPI_DBI_MODE_SPI_4WIRE";
+		};
+	};
+};
+
+&flash0 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		boot_partition: partition@0 {
+			label = "mcuboot";
+			reg = <0x00000000 DT_SIZE_K(48)>;
+		};
+
+		slot0_partition: partition@c000 {
+			label = "image-0";
+			reg = <0x0000c000 DT_SIZE_K(472)>;
+		};
+
+		slot1_partition: partition@82000 {
+			label = "image-1";
+			reg = <0x00082000 DT_SIZE_K(472)>;
+		};
+
+		storage_partition: partition@f8000 {
+			label = "storage";
+			reg = <0x000f8000 DT_SIZE_K(32)>;
+		};
+	};
+};
+// 开启GPIO外设
+&gpio1 {
+	status = "okay";
+};
+// task event
+&gpiote {
+	status = "okay";
+};
+&qdec {
+	status = "okay";
+
+	pinctrl-0 = <&encoder_default>;
+	pinctrl-1 = <&encoder_sleep>;
+	pinctrl-names = "default", "sleep";
+
+	led-pre = <0>;
+	steps = <80>;
+	nordic,period = "SAMPLEPER_1024US";
+};
+&uicr {
+	nfct-pins-as-gpios;
+};
+/* 开启 P0.xx GPIO，用于键盘矩阵 */
+&gpio0 {
+	status = "okay";
+};
+&spi3 {
+	status = "okay";
+	pinctrl-0 = <&spi3_default>;
+	pinctrl-1 = <&spi3_sleep>;
+	pinctrl-names = "default", "sleep";
+	cs-gpios = <&gpio0 2 GPIO_ACTIVE_LOW>;
+};
+
+&pwm0 {
+	status = "okay";
+	pinctrl-0 = <&pwm0_default>;
+	pinctrl-1 = <&pwm0_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+&spi1 {
+	status = "okay";
+
+	pinctrl-0 = <&spi1_ws2812_default>;
+	pinctrl-1 = <&spi1_ws2812_sleep>;
+	pinctrl-names = "default", "sleep";
+
+	led_strip: ws2812@0 {
+		compatible = "worldsemi,ws2812-spi";
+		status = "okay";
+		reg = <0>;
+
+		spi-max-frequency = <6400000>;
+		chain-length = <17>;
+
+		color-mapping = <LED_COLOR_ID_GREEN
+				 LED_COLOR_ID_RED
+				 LED_COLOR_ID_BLUE>;
+
+		spi-one-frame = <0x70>;
+		spi-zero-frame = <0x40>;
+		bits-per-symbol = <8>;
+		reset-delay = <8>;
+
+		supply-gpios = <&gpio0 13 GPIO_ACTIVE_HIGH>;
+	};
+};
+/* M5.2：USB CDC虚拟串口 */
+&usbd {
+	status = "okay";
+
+	num-bidir-endpoints = <1>;
+	num-in-endpoints = <7>;
+	num-out-endpoints = <7>;
+	num-isoin-endpoints = <0>;
+	num-isoout-endpoints = <0>;
+
+	cdc_acm_uart0: cdc_acm_uart0 {
+		compatible = "zephyr,cdc-acm-uart";
+		label = "CDC_ACM_0";
+	};
+};

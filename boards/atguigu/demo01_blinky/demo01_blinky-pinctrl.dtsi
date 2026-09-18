@@ -1,0 +1,63 @@
+&pinctrl {
+	/* EC11 QDEC：A=P0.10，B=P1.06。 */
+	encoder_default: encoder_default {
+		group1 {
+			psels = <NRF_PSEL(QDEC_A, 0, 10)>,
+				<NRF_PSEL(QDEC_B, 1, 6)>;
+			bias-pull-up;
+		};
+	};
+
+	encoder_sleep: encoder_sleep {
+		group1 {
+			psels = <NRF_PSEL(QDEC_A, 0, 10)>,
+				<NRF_PSEL(QDEC_B, 1, 6)>;
+			low-power-enable;
+			bias-pull-up;
+		};
+	};
+    
+		spi1_ws2812_default: spi1_ws2812_default {
+		group1 {
+			psels = <NRF_PSEL(SPIM_SCK, 1, 4)>,
+				<NRF_PSEL(SPIM_MOSI, 0, 20)>;
+		};
+	};
+
+	spi1_ws2812_sleep: spi1_ws2812_sleep {
+		group1 {
+			psels = <NRF_PSEL(SPIM_SCK, 1, 4)>,
+				<NRF_PSEL(SPIM_MOSI, 0, 20)>;
+			low-power-enable;
+		};
+	};
+	/* ST7789 SPI3：SCK=P1.13，MOSI=P0.28。 */
+	spi3_default: spi3_default {
+		group1 {
+			psels = <NRF_PSEL(SPIM_SCK, 1, 13)>,
+				<NRF_PSEL(SPIM_MOSI, 0, 28)>;
+		};
+	};
+
+	spi3_sleep: spi3_sleep {
+		group1 {
+			psels = <NRF_PSEL(SPIM_SCK, 1, 13)>,
+				<NRF_PSEL(SPIM_MOSI, 0, 28)>;
+			low-power-enable;
+		};
+	};
+
+	/* LCD背光 PWM0：PWM_OUT0=P1.11。 */
+	pwm0_default: pwm0_default {
+		group1 {
+			psels = <NRF_PSEL(PWM_OUT0, 1, 11)>;
+		};
+	};
+
+	pwm0_sleep: pwm0_sleep {
+		group1 {
+			psels = <NRF_PSEL(PWM_OUT0, 1, 11)>;
+			low-power-enable;
+		};
+	};
+};

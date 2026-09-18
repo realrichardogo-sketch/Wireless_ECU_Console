@@ -1,0 +1,14 @@
+sample:
+  name: Wireless ECU Console
+  description: nRF52840 vehicle-status console with BLE NUS and USB CDC
+
+tests:
+  sample.wireless_ecu_console:
+    tags:
+      - bluetooth
+      - display
+      - gpio
+      - sensor
+    platform_allow:
+      - demo01_blinky/nrf52840
+    build_only: true

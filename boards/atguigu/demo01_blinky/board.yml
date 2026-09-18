@@ -1,0 +1,5 @@
+board:
+  name: demo01_blinky
+  vendor: atguigu
+  socs:
+    - name: nrf52840

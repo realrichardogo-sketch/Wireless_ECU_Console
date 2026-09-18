@@ -1,0 +1,32 @@
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Zephyr / nRF Connect SDK build output
+/build*/
+zephyr/.config
+
+# Keil generated files
+**/OUTPUT/
+**/Objects/
+**/Listings/
+**/DebugConfig/
+*.uvguix.*
+*.bak
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Local captures and archives
+/logs/
+*.zip
+
+# Keil user-specific settings
+*.uvoptx
